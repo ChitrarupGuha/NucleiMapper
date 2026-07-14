@@ -1,0 +1,222 @@
+{
+  "overall_accuracy": 0.8796296296296297,
+  "per_class": {
+    "BAND CELLS": {
+      "precision": 0.8181818181818182,
+      "recall": 1.0,
+      "f1": 0.9,
+      "per_class_accuracy": 0.9814814814814815,
+      "support": 9
+    },
+    "BASOPHILS": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "per_class_accuracy": 1.0,
+      "support": 4
+    },
+    "BLAST CELLS": {
+      "precision": 0.9565217391304348,
+      "recall": 1.0,
+      "f1": 0.9777777777777777,
+      "per_class_accuracy": 0.9907407407407407,
+      "support": 22
+    },
+    "EOSINOPHILS": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "per_class_accuracy": 1.0,
+      "support": 13
+    },
+    "LYMPHOCYTES": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "per_class_accuracy": 1.0,
+      "support": 9
+    },
+    "METAMYELOCYTES": {
+      "precision": 0.6666666666666666,
+      "recall": 0.5,
+      "f1": 0.5714285714285714,
+      "per_class_accuracy": 0.9722222222222222,
+      "support": 4
+    },
+    "MONOCYTES": {
+      "precision": 0.7777777777777778,
+      "recall": 0.875,
+      "f1": 0.8235294117647058,
+      "per_class_accuracy": 0.9722222222222222,
+      "support": 8
+    },
+    "MYELOCYTE": {
+      "precision": 1.0,
+      "recall": 0.5714285714285714,
+      "f1": 0.7272727272727273,
+      "per_class_accuracy": 0.9444444444444444,
+      "support": 14
+    },
+    "NEUTROPHILS": {
+      "precision": 0.9333333333333333,
+      "recall": 0.8235294117647058,
+      "f1": 0.875,
+      "per_class_accuracy": 0.9629629629629629,
+      "support": 17
+    },
+    "PROMYELOCYTES": {
+      "precision": 0.5384615384615384,
+      "recall": 0.875,
+      "f1": 0.6666666666666666,
+      "per_class_accuracy": 0.9351851851851852,
+      "support": 8
+    }
+  },
+  "macro_avg": {
+    "precision": 0.8690942873551568,
+    "recall": 0.8644957983193275,
+    "f1-score": 0.8541675154910449,
+    "support": 108.0
+  },
+  "weighted_avg": {
+    "precision": 0.9025033563680905,
+    "recall": 0.8796296296296297,
+    "f1-score": 0.878474187093468,
+    "support": 108.0
+  },
+  "confusion_matrix": [
+    [
+      9,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      22,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      13,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      9,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      1,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      7,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      8,
+      0,
+      5
+    ],
+    [
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      14,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      7
+    ]
+  ],
+  "class_order": [
+    "BAND CELLS",
+    "BASOPHILS",
+    "BLAST CELLS",
+    "EOSINOPHILS",
+    "LYMPHOCYTES",
+    "METAMYELOCYTES",
+    "MONOCYTES",
+    "MYELOCYTE",
+    "NEUTROPHILS",
+    "PROMYELOCYTES"
+  ],
+  "weak_classes_below_threshold": []
+}

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NucleiMapper v3.0</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#f8fafc;color:#0f172a;min-height:100vh;padding:1.5rem}
+.app{max-width:1200px;margin:0 auto}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+.logo-row{display:flex;align-items:center;gap:.75rem}
+.logo-icon{color:#4f46e5}
+.logo-title{font-size:1.5rem;font-weight:900;display:flex;align-items:center;gap:.5rem}
+.badge{font-size:.6rem;background:#4f46e5;color:#fff;padding:.15rem .45rem;border-radius:4px;font-weight:700}
+.logo-sub{font-size:.55rem;text-transform:uppercase;letter-spacing:.15em;color:#94a3b8;font-weight:700;margin-top:.2rem}
+.mode-right{text-align:right}
+.mode-right .ml{display:block;font-size:.55rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em}
+.mode-right .mv{font-size:.65rem;font-weight:700;color:#4f46e5;text-transform:uppercase}
+
+/* LAYOUT */
+.grid{display:grid;grid-template-columns:320px 1fr;gap:1.5rem}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+
+/* CARDS */
+.card{background:#fff;border-radius:1.25rem;border:1px solid #e2e8f0;padding:1.25rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.ct{font-size:.55rem;font-weight:900;text-transform:uppercase;letter-spacing:.15em;color:#94a3b8;margin-bottom:.9rem;display:flex;justify-content:space-between;align-items:center}
+.ct .ok{color:#22c55e}
+
+/* DROP ZONE */
+#drop-zone{border:2px dashed #e2e8f0;border-radius:.9rem;padding:2rem 1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;background:#f8fafc;transition:border-color .2s;text-align:center}
+#drop-zone:hover{border-color:#a5b4fc}
+#drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+#drop-zone .dz-icon{color:#cbd5e1;margin-bottom:.5rem}
+#drop-zone .dz-txt{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:#94a3b8}
+
+/* PREVIEW */
+#prev-wrap{display:none;position:relative;border-radius:.9rem;overflow:hidden;border:1px solid #e0e7ff;background:#0f172a}
+#prev-wrap canvas{width:100%;display:block;max-height:180px;object-fit:cover}
+#prev-lbl{position:absolute;top:.45rem;left:.45rem;background:rgba(0,0,0,.55);color:#fff;font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:.2rem .45rem;border-radius:3px}
+#chg-ovl{position:absolute;inset:0;background:rgba(0,0,0,.42);display:none;align-items:center;justify-content:center;cursor:pointer}
+#prev-wrap:hover #chg-ovl{display:flex}
+#chg-ovl span{color:#fff;font-size:.55rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;background:rgba(255,255,255,.18);padding:.35rem .7rem;border-radius:.6rem}
+#chg-ovl input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* THRESHOLD SLIDER */
+.threshold-wrap{margin-top:1rem}
+.threshold-label{display:flex;justify-content:space-between;align-items:center;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-bottom:.4rem}
+.threshold-label .tval{color:#4f46e5;font-size:.7rem;font-weight:900}
+#threshold{width:100%;height:6px;border-radius:9999px;appearance:none;-webkit-appearance:none;background:linear-gradient(to right,#4f46e5 var(--pct,17.6%),#e2e8f0 var(--pct,17.6%));cursor:pointer;outline:none;border:none}
+#threshold::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#4f46e5;border:2px solid #fff;box-shadow:0 1px 6px rgba(79,70,229,.45);cursor:pointer}
+#threshold::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#4f46e5;border:2px solid #fff;cursor:pointer;box-shadow:0 1px 6px rgba(79,70,229,.45)}
+
+/* RUN BTN */
+#run-btn{width:100%;margin-top:1rem;padding:.85rem 1rem;border-radius:.9rem;font-weight:900;color:#fff;background:#4f46e5;border:none;cursor:pointer;font-size:.8rem;letter-spacing:.05em;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:.5rem}
+#run-btn:hover:not(:disabled){background:#4338ca}
+#run-btn:disabled{background:#cbd5e1;cursor:not-allowed}
+
+/* PIPELINE */
+.step{display:flex;align-items:flex-start;gap:.65rem;opacity:.25;transition:opacity .3s;margin-bottom:.85rem}
+.step.on{opacity:1}
+.step.err{opacity:1}
+.sdot{width:1.15rem;height:1.15rem;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:.55rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem}
+.step.on .sdot{background:#22c55e;color:#fff}
+.step.err .sdot{background:#dc2626;color:#fff}
+.step.err .sd{color:#dc2626}
+.sl{font-size:.75rem;font-weight:700}
+.sd{font-size:.55rem;color:#94a3b8;margin-top:.1rem}
+
+/* LEGEND */
+.leg-item{display:flex;align-items:center;justify-content:space-between;padding:.35rem .65rem;border-radius:.65rem;background:#f8fafc;margin-bottom:.4rem;transition:all .2s}
+.leg-dot{width:.45rem;height:.45rem;border-radius:50%;flex-shrink:0}
+.leg-name{font-size:.7rem;font-weight:700;margin-left:.45rem}
+.leg-note{font-size:.55rem;color:#94a3b8}
+
+/* FEATURES */
+.mrow{margin-bottom:.85rem}
+.mhdr{display:flex;justify-content:space-between;font-size:.55rem;font-weight:700;margin-bottom:.2rem}
+.mlbl{color:#64748b}.mval{color:#4f46e5}
+.mbar{height:.22rem;background:#f1f5f9;border-radius:9999px;overflow:hidden}
+.mfill{height:100%;background:#6366f1;border-radius:9999px;transition:width .7s ease}
+.await{font-size:.55rem;color:#94a3b8;font-style:italic;text-align:center;padding:.9rem;text-transform:uppercase;letter-spacing:.12em}
+
+/* IMAGE PANELS — top row 2 equal */
+.img-panels{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+/* bottom row 2 equal */
+.img-panels-bottom{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+
+.ipanel{background:#fff;border:1px solid #e2e8f0;border-radius:1.25rem;padding:.4rem;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.iplbl{position:absolute;top:.6rem;left:.6rem;font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#fff;padding:.18rem .42rem;border-radius:3px;z-index:10}
+.raw-lbl{background:rgba(0,0,0,.52)}
+.nuc-lbl{background:rgba(99,102,241,.8)}
+.gran-lbl{background:rgba(234,88,12,.85)}
+.bin-lbl{background:rgba(30,41,59,.75)}
+
+.ibox{aspect-ratio:1;border-radius:.85rem;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+.ibox.lt{background:#f8fafc}
+.ibox.dk{background:#0f172a}
+.ibox canvas{width:100%;height:100%;object-fit:cover;display:block}
+.wait-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#475569;pointer-events:none}
+.wait-ov svg{opacity:.18;margin-bottom:.4rem}
+.wait-ov span{font-size:.75rem;opacity:.45}
+
+/* RESULT CARD */
+#rcard{background:#fff;border-radius:1.5rem;border:1px solid #e2e8f0;box-shadow:0 4px 18px rgba(0,0,0,.07);overflow:hidden;display:none}
+#rcard.show{display:block;animation:fu .35s ease}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ri{padding:2rem}
+.rtop{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.rlbl{font-size:.55rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#4f46e5;margin-bottom:.4rem}
+.rname{font-size:2.6rem;font-weight:900;letter-spacing:-.02em;line-height:1.05}
+.cbox{background:#eef2ff;padding:1rem 1.25rem;border-radius:.9rem;text-align:center;border:1px solid #e0e7ff;min-width:120px}
+.clbl{font-size:.5rem;font-weight:900;text-transform:uppercase;color:#818cf8;margin-bottom:.2rem}
+.cval{font-family:monospace;font-size:1.8rem;font-weight:700;color:#4f46e5}
+.rstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.65rem}
+.sbox{background:#f8fafc;border:1px solid #f1f5f9;border-radius:.9rem;padding:.85rem;text-align:center}
+.slbl{font-size:.5rem;font-weight:900;text-transform:uppercase;color:#94a3b8;margin-bottom:.35rem}
+.sval{font-size:1.3rem;font-weight:700;color:#1e293b}
+.rdesc{background:#0f172a;padding:1rem 1.75rem;color:#94a3b8;font-size:.8rem;font-style:italic}
+
+/* COLORS */
+.c-blue{color:#2563eb}.c-purple{color:#7c3aed}.c-indigo{color:#4f46e5}.c-orange{color:#ea580c}.c-slate{color:#475569}.c-red{color:#dc2626}
+.dot-blue{background:#3b82f6}.dot-purple{background:#8b5cf6}.dot-indigo{background:#6366f1}.dot-orange{background:#f97316}.dot-slate{background:#64748b}
+.bg-blue{background:#dbeafe!important}.bg-purple{background:#ede9fe!important}.bg-indigo{background:#e0e7ff!important}.bg-orange{background:#ffedd5!important}.bg-slate{background:#f1f5f9!important}
+@keyframes sp{to{transform:rotate(360deg)}}
+.spin{display:inline-block;animation:sp .7s linear infinite}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo-row">
+    <svg class="logo-icon" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="12" cy="12" rx="10" ry="6"/><ellipse cx="12" cy="12" rx="5" ry="3"/><circle cx="12" cy="12" r="1"/>
+    </svg>
+    <div>
+      <div class="logo-title">NucleiMapper <span class="badge">v3.0</span></div>
+      <div class="logo-sub">Morphological Lobe Detection / Feature Analysis</div>
+    </div>
+  </div>
+  <div class="mode-right">
+    <span class="ml">Inference Mode</span>
+    <span class="mv">Erosion / Lobe Detection</span>
+  </div>
+</header>
+
+<div class="grid">
+  <!-- LEFT COLUMN -->
+  <div>
+    <div class="card">
+      <div class="ct"><span>Microscope Data</span><span class="ok" id="ok-badge" style="display:none">Loaded</span></div>
+      <div id="drop-zone">
+        <input type="file" accept="image/*" id="fi1">
+        <svg class="dz-icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span class="dz-txt">Drop smear image</span>
+      </div>
+      <div id="prev-wrap">
+        <span id="prev-lbl">Preview</span>
+        <canvas id="pvc"></canvas>
+        <div id="chg-ovl"><span>Change Image</span><input type="file" accept="image/*" id="fi2"></div>
+      </div>
+
+      <div class="threshold-wrap">
+        <div class="threshold-label">
+          <span>Detection Threshold</span>
+          <span class="tval" id="thresh-val">45</span>
+        </div>
+        <input type="range" id="threshold" min="0" max="255" value="45">
+      </div>
+
+      <button id="run-btn" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        RUN ANALYSIS
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="ct">Pipeline Debugger</div>
+      <div class="step" id="s1"><div class="sdot">1</div><div><div class="sl">Normalization &amp; Load</div><div class="sd">Rasterising input frame</div></div></div>
+      <div class="step" id="s2"><div class="sdot">2</div><div><div class="sl">Deep Purple Masking</div><div class="sd">Isolating chromatin pixels</div></div></div>
+      <div class="step" id="s3"><div class="sdot">3</div><div><div class="sl">Erosion &amp; Lobe Count</div><div class="sd">Disconnecting filaments, counting lobes</div></div></div>
+      <div class="step" id="s4"><div class="sdot">4</div><div><div class="sl">AI Backend Classification</div><div class="sd" id="s4-sub">Awaiting model prediction</div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Target Cell Types</div>
+      <div id="legend">
+        <div class="leg-item" id="lg-Neutrophil"><div style="display:flex;align-items:center"><div class="leg-dot dot-blue"></div><span class="leg-name">Neutrophil</span></div><span class="leg-note">60–70% of WBCs</span></div>
+        <div class="leg-item" id="lg-Lymphocyte"><div style="display:flex;align-items:center"><div class="leg-dot dot-purple"></div><span class="leg-name">Lymphocyte</span></div><span class="leg-note">20–40% of WBCs</span></div>
+        <div class="leg-item" id="lg-Monocyte"><div style="display:flex;align-items:center"><div class="leg-dot dot-indigo"></div><span class="leg-name">Monocyte</span></div><span class="leg-note">2–8% of WBCs</span></div>
+        <div class="leg-item" id="lg-Eosinophil"><div style="display:flex;align-items:center"><div class="leg-dot dot-orange"></div><span class="leg-name">Eosinophil</span></div><span class="leg-note">1–4% of WBCs</span></div>
+        <div class="leg-item" id="lg-Basophil"><div style="display:flex;align-items:center"><div class="leg-dot dot-slate"></div><span class="leg-name">Basophil</span></div><span class="leg-note">0.5–1% of WBCs</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Extracted Features</div>
+      <div id="feats"><div class="await">Awaiting Analysis...</div></div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div>
+    <!-- Row 1: Raw Input + Isolated Nucleus (purple mask) -->
+    <div class="img-panels">
+      <div class="ipanel">
+        <span class="iplbl raw-lbl">Raw Input</span>
+        <div class="ibox lt">
+          <canvas id="raw-c" style="display:none;width:100%;height:100%"></canvas>
+          <svg id="raw-ph" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+      </div>
+      <div class="ipanel">
+        <span class="iplbl nuc-lbl">Isolated Nucleus</span>
+        <div class="ibox dk">
+          <canvas id="mask-c" style="width:100%;height:100%"></canvas>
+          <div class="wait-ov" id="wait-ov-nuc">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Waiting…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Binary Mask + Granule Density Map -->
+    <div class="img-panels-bottom">
+      <div class="ipanel">
+        <span class="iplbl bin-lbl">Isolated Nucleus (Binary)</span>
+        <div class="ibox dk">
+          <canvas id="bin-c" style="width:100%;height:100%"></canvas>
+          <div class="wait-ov" id="wait-ov-bin">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Waiting…</span>
+          </div>
+        </div>
+      </div>
+      <div class="ipanel">
+        <span class="iplbl gran-lbl">Granule Density Map</span>
+        <div class="ibox dk">
+          <canvas id="gran-c" style="width:100%;height:100%"></canvas>
+          <div class="wait-ov" id="wait-ov-gran">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Waiting…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Card -->
+    <div id="rcard">
+      <div class="ri">
+        <div class="rtop">
+          <div><div class="rlbl">Classification Result</div><div class="rname" id="rname">—</div></div>
+          <div class="cbox"><div class="clbl">Confidence</div><div class="cval" id="cval">—</div></div>
+        </div>
+        <div class="rstats">
+          <div class="sbox"><div class="slbl">Nucleus Area (px)</div><div class="sval" id="s-area">—</div></div>
+          <div class="sbox"><div class="slbl">Lobe Count</div><div class="sval" id="s-lobes">—</div></div>
+          <div class="sbox"><div class="slbl">Circularity</div><div class="sval" id="s-circ">—</div></div>
+        </div>
+      </div>
+      <div class="rdesc" id="rdesc"></div>
+    </div>
+  </div>
+</div>
+
+<!-- hidden working canvas -->
+<canvas id="hc" style="display:none"></canvas>
+
+<script>
+// CELLS is now PURE DISPLAY METADATA — a lookup table used only to show a
+// nicer name/color/description once the AI BACKEND has already returned a
+// class. Nothing here makes a classification decision; classify() (the
+// old morphology-math decision function) has been removed entirely. If
+// the AI backend can't be reached, none of this is used — see
+// showBackendUnavailable() below.
+const CELLS = {
+  Neutrophil: {id:"Neutrophil",name:"Neutrophil",desc:"Multilobed nucleus (3-5 lobes) connected by thin filaments. Neutral/pale granules. Most abundant WBC (~60-70%).",cc:"c-blue",bg:"bg-blue"},
+  Lymphocyte:  {id:"Lymphocyte",name:"Lymphocyte",desc:"Large, round, dense nucleus occupying most of the cell with minimal cytoplasm. Second most common WBC.",cc:"c-purple",bg:"bg-purple"},
+  Monocyte:    {id:"Monocyte",name:"Monocyte",desc:"Largest WBC. Kidney or horseshoe-shaped nucleus, abundant grey-blue cytoplasm. Differentiates into macrophages.",cc:"c-indigo",bg:"bg-indigo"},
+  Eosinophil:  {id:"Eosinophil",name:"Eosinophil",desc:"Bilobed nucleus (2 lobes). Distinctive large orange-red cytoplasmic granules. Involved in allergic reactions.",cc:"c-orange",bg:"bg-orange"},
+  Basophil:    {id:"Basophil",name:"Basophil",desc:"Large dark purple-black granules often obscuring the nucleus. Rarest WBC (~0.5-1%). Releases histamine.",cc:"c-slate",bg:"bg-slate"},
+};
+
+// erode()/blobs() are kept — they ONLY feed the "Lobe Count" stat shown in
+// Extracted Features (a displayed measurement, not a classification
+// decision). Nothing reads their output to pick a cell type anymore.
+function erode(s,W){const o=new Set();for(const k of s){const x=k%W,y=(k/W)|0;if(s.has((y-1)*W+x)&&s.has((y+1)*W+x)&&s.has(y*W+(x-1))&&s.has(y*W+(x+1)))o.add(k);}return o;}
+function blobs(s,W){const v=new Set();let b=0;for(const k of s){if(v.has(k))continue;b++;const st=[k];while(st.length){const c=st.pop();if(v.has(c))continue;v.add(c);const x=c%W,y=(c/W)|0;for(const n of[(y-1)*W+x,(y+1)*W+x,y*W+(x-1),y*W+(x+1)])if(s.has(n)&&!v.has(n))st.push(n);}}return b;}
+
+const $ = id => document.getElementById(id);
+let curImg = null, busy = false;
+const W = 300, H = 300;
+
+/* ── SLIDER: drives nucleus mask live ── */
+const threshInput = $('threshold');
+const threshVal   = $('thresh-val');
+
+function updateSliderTrack(v) {
+  const pct = (v / 255 * 100).toFixed(1) + '%';
+  threshInput.style.setProperty('--pct', pct);
+  // direct background update for cross-browser
+  threshInput.style.background = `linear-gradient(to right,#4f46e5 ${pct},#e2e8f0 ${pct})`;
+}
+updateSliderTrack(45);
+
+threshInput.addEventListener('input', () => {
+  const v = parseInt(threshInput.value);
+  threshVal.textContent = v;
+  updateSliderTrack(v);
+  if (curImg && !busy) liveRender(v);
+});
+
+/* ── LIVE RENDER: nucleus mask + binary + granule on slider move ── */
+function liveRender(thresh) {
+  const hc = $('hc');
+  if (!hc.width) return;
+  const ctx = hc.getContext('2d', {willReadFrequently:true});
+  const id  = ctx.getImageData(0, 0, W, H);
+  const d   = id.data;
+
+  // --- Purple nucleus mask (same logic as full run) ---
+  const pp = []; let tR=0, tB=0, ud=0;
+  for (let i = 0; i < d.length; i += 4) {
+    const r=d[i], g=d[i+1], b=d[i+2];
+    // threshold now controls the blue-plane sensitivity
+    const blueVal = b - (r+g)/2;
+    if (blueVal > thresh && (r+g+b)/3 < 180) {
+      const idx=i/4;
+      pp.push({x:idx%W, y:(idx/W)|0, i});
+      tR+=r; tB+=b; if(r+g+b<240) ud++;
+    }
+  }
+  let fp = [];
+  if (pp.length) {
+    const ax=pp.reduce((s,p)=>s+p.x,0)/pp.length;
+    const ay=pp.reduce((s,p)=>s+p.y,0)/pp.length;
+    fp=pp.filter(p=>Math.hypot(p.x-ax,p.y-ay)<75);
+  }
+
+  // Purple mask canvas
+  const mc=$('mask-c'); mc.width=W; mc.height=H;
+  const mCtx=mc.getContext('2d');
+  const md=mCtx.createImageData(W,H);
+  fp.forEach(p=>{md.data[p.i]=140;md.data[p.i+1]=40;md.data[p.i+2]=255;md.data[p.i+3]=255;});
+  mCtx.putImageData(md,0,0);
+  $('wait-ov-nuc').style.display='none';
+
+  // Binary (B&W) mask canvas — exactly like V2.2
+  const bc2=$('bin-c'); bc2.width=W; bc2.height=H;
+  const bCtx=bc2.getContext('2d');
+  const bd=bCtx.createImageData(W,H);
+  const ps=new Set(fp.map(p=>p.y*W+p.x));
+  for(let i=0;i<W*H;i++){
+    const v=ps.has(i)?255:0;
+    bd.data[i*4]=v;bd.data[i*4+1]=v;bd.data[i*4+2]=v;bd.data[i*4+3]=255;
+  }
+  bCtx.putImageData(bd,0,0);
+  $('wait-ov-bin').style.display='none';
+
+  // Granule density — BLACK bg, orange dots only (exactly V2.2 style)
+  const gc=$('gran-c'); gc.width=W; gc.height=H;
+  const gCtx=gc.getContext('2d');
+  const gd=gCtx.createImageData(W,H);
+  for(let i=0;i<d.length;i+=4){
+    const r=d[i],g2=d[i+1],b2=d[i+2];
+    const blueVal=b2-(r+g2)/2;
+    if(r>g2+20&&blueVal<10){
+      // granule pixel — orange
+      gd.data[i]=255;gd.data[i+1]=100;gd.data[i+2]=0;gd.data[i+3]=255;
+    } else {
+      // black background
+      gd.data[i]=0;gd.data[i+1]=0;gd.data[i+2]=0;gd.data[i+3]=255;
+    }
+  }
+  gCtx.putImageData(gd,0,0);
+  $('wait-ov-gran').style.display='none';
+}
+
+/* ── FILE LOAD ── */
+function loadFile(file) {
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    curImg = e.target.result;
+    $('drop-zone').style.display = 'none';
+    $('prev-wrap').style.display = 'block';
+    $('ok-badge').style.display  = 'inline';
+    $('run-btn').disabled         = false;
+    $('rcard').classList.remove('show');
+    [1,2,3,4].forEach(i=>$('s'+i).classList.remove('on'));
+    $('s4').classList.remove('err');
+    $('s4-sub').textContent = 'Awaiting model prediction';
+    document.querySelectorAll('.leg-item').forEach(el=>{el.style.background='';el.className='leg-item';});
+    $('feats').innerHTML = '<div class="await">Awaiting Analysis...</div>';
+    $('wait-ov-nuc').style.display='flex';
+    $('wait-ov-bin').style.display='flex';
+    $('wait-ov-gran').style.display='flex';
+
+    const img = new Image();
+    img.onload = () => {
+      // Preview thumbnail
+      const pw=300, ph=Math.round(300*img.naturalHeight/img.naturalWidth);
+      const pvc=$('pvc'); pvc.width=pw; pvc.height=ph;
+      pvc.getContext('2d').drawImage(img,0,0,pw,ph);
+      $('prev-lbl').textContent='Preview';
+
+      // Raw canvas
+      const rc=$('raw-c'); rc.style.display='block'; rc.width=W; rc.height=H;
+      rc.getContext('2d').drawImage(img,0,0,W,H);
+      $('raw-ph') && ($('raw-ph').style.display='none');
+
+      // Hidden analysis canvas
+      const hc=$('hc'); hc.width=W; hc.height=H;
+      hc.getContext('2d',{willReadFrequently:true}).drawImage(img,0,0,W,H);
+
+      // Immediately show live render at current threshold
+      liveRender(parseInt(threshInput.value));
+    };
+    img.src = curImg;
+  };
+  r.readAsDataURL(file);
+}
+$('fi1').onchange = e => loadFile(e.target.files[0]);
+$('fi2').onchange = e => loadFile(e.target.files[0]);
+
+/* ── AI BACKEND PREDICTION ──
+   IMPORTANT: the model was trained on tight single-cell crops (see
+   data_prep/crop_dataset.py in the backend), not full multi-cell slide
+   photos. The heuristic engine above already finds the WBC's bounding
+   box in its own 300x300 working space (W,H) — we scale that box back up
+   to the ORIGINAL image resolution and crop exactly that region (plus a
+   little padding) before sending anything to the backend. Sending the
+   full raw photo instead of this crop is what caused every
+   out-of-distribution test to fail; this is the fix.
+
+   No separate AI panel in the UI on purpose — the heuristic engine
+   already draws the dotted detection box and fills the Classification
+   Result card immediately. Once the backend responds, this just
+   overwrites that same box label + result card with the AI's verdict.
+   If the backend is unreachable, the heuristic's own result is left
+   exactly as it was (silent, graceful fallback — edit AI_BACKEND_URL
+   below if you're not running it on localhost). */
+const AI_BACKEND_URL = 'http://localhost:8000';
+
+function cropForAI(img, bbox, padFrac = 0.18) {
+  if (!bbox) return null;
+  const scaleX = img.naturalWidth / W;
+  const scaleY = img.naturalHeight / H;
+  const bw = (bbox.x1 - bbox.x0) * scaleX;
+  const bh = (bbox.y1 - bbox.y0) * scaleY;
+  const padX = Math.max(bw * padFrac, 6);
+  const padY = Math.max(bh * padFrac, 6);
+  const sx = Math.max(0, bbox.x0 * scaleX - padX);
+  const sy = Math.max(0, bbox.y0 * scaleY - padY);
+  const sw = Math.min(img.naturalWidth - sx, bw + padX * 2);
+  const sh = Math.min(img.naturalHeight - sy, bh + padY * 2);
+  if (sw < 4 || sh < 4) return null;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(sw));
+  canvas.height = Math.max(1, Math.round(sh));
+  canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+  return canvas;
+}
+
+function formatAIClassName(raw) {
+  return raw.toLowerCase().split(' ')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+// Redraws the raw-input canvas + preview canvas from scratch (image + box)
+// so the new label doesn't just stack on top of the old one.
+function redrawBoxes(img, bbox, label, rc, pvc) {
+  const rctx = rc.getContext('2d');
+  rctx.clearRect(0, 0, rc.width, rc.height);
+  rctx.drawImage(img, 0, 0, rc.width, rc.height);
+  drawBB(rc, label, bbox, W, H);
+
+  const pctx = pvc.getContext('2d');
+  pctx.clearRect(0, 0, pvc.width, pvc.height);
+  pctx.drawImage(img, 0, 0, pvc.width, pvc.height);
+  drawBB(pvc, label, bbox, pvc.width, pvc.height);
+}
+
+// Maps the AI backend's raw class names (10 RV-PBS classes, e.g.
+// "NEUTROPHILS") to the 5-entry legend/description lookup above, for the
+// classes that have one. Classes outside this map (Band Cells, Blast
+// Cells, Metamyelocytes, Myelocyte, Promyelocytes) still display fine —
+// they just don't get a legend highlight or extended description, since
+// CELLS only ever covered the 5 common types.
+const AI_TO_LEGEND = {
+  NEUTROPHILS: 'Neutrophil', LYMPHOCYTES: 'Lymphocyte', MONOCYTES: 'Monocyte',
+  EOSINOPHILS: 'Eosinophil', BASOPHILS: 'Basophil',
+};
+
+async function runAIPrediction(cropCanvas, ctx) {
+  if (!cropCanvas) {
+    showBackendUnavailable('no WBC region detected to send');
+    return;
+  }
+  try {
+    const blob = await new Promise(res => cropCanvas.toBlob(res, 'image/jpeg', 0.92));
+    const fd = new FormData();
+    fd.append('file', blob, 'crop.jpg');
+    const resp = await fetch(AI_BACKEND_URL + '/predict', { method: 'POST', body: fd });
+    if (!resp.ok) throw new Error('backend returned HTTP ' + resp.status);
+    const data = await resp.json();
+    const niceName = formatAIClassName(data.class);
+    const boxLabel = `${niceName} (${data.confidence}%)`;
+    const meta = CELLS[AI_TO_LEGEND[data.class]]; // may be undefined — handled below
+
+    redrawBoxes(ctx.img, ctx.bbox, boxLabel, ctx.rc, ctx.pvc);
+
+    $('rname').textContent = niceName;
+    $('rname').className = 'rname ' + (meta ? meta.cc : 'c-indigo');
+    $('cval').textContent = data.confidence + '%';
+    $('rdesc').textContent = meta
+      ? '"' + meta.desc + '"'
+      : '"Predicted by the trained AI backend from the detected crop region."';
+
+    document.querySelectorAll('.leg-item').forEach(el=>{el.style.background='';el.className='leg-item';});
+    if (meta) {
+      const lg = $('lg-' + meta.id);
+      if (lg) { lg.classList.add(meta.bg); lg.style.outline = '1px solid #94a3b8'; }
+    }
+
+    $('s4').classList.remove('err');
+    $('s4').classList.add('on');
+    $('s4-sub').textContent = 'Model responded';
+  } catch (err) {
+    // Explicit, visible failure — no silent fallback to any heuristic guess.
+    showBackendUnavailable(err.message);
+  }
+}
+
+/* ── BOUNDING BOX ── */
+function drawBB(canvas, label, bb, SW, SH) {
+  if (!bb) return;
+  const ctx=canvas.getContext('2d');
+  const sx=canvas.width/SW, sy=canvas.height/SH, pad=10;
+  const bx=Math.max(0,bb.x0*sx-pad), by=Math.max(0,bb.y0*sy-pad);
+  const bw=Math.min(canvas.width-bx,(bb.x1-bb.x0)*sx+pad*2);
+  const bh=Math.min(canvas.height-by,(bb.y1-bb.y0)*sy+pad*2);
+  ctx.shadowColor='#ef4444';ctx.shadowBlur=5;
+  ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.setLineDash([5,4]);
+  ctx.strokeRect(bx,by,bw,bh);
+  ctx.shadowBlur=0;ctx.setLineDash([]);
+  if (!label) return; // plain box only — no classification to label yet
+  ctx.font='bold 10px monospace';
+  const tw=ctx.measureText(label).width+10;
+  ctx.fillStyle='#ef4444';ctx.fillRect(bx,Math.max(0,by-18),tw,18);
+  ctx.fillStyle='#fff';ctx.fillText(label,bx+5,Math.max(13,by-5));
+}
+
+/* ── SHOW RESULT ── */
+/* ── DETECTION STATS (measurements only — NOT a classification) ──
+   This used to be showResult(), which also picked a cell type via
+   classify(). That decision logic is gone. This function only displays
+   what the client-side masking actually measured (area, lobe count,
+   circularity) and puts the result card into a neutral "pending" state
+   until the AI backend either returns a real class or fails to respond. */
+function showDetectionStats({area,circ,lc,bbox}){
+  $('s-area').textContent=area;
+  $('s-lobes').textContent=lc;
+  $('s-circ').textContent=circ;
+  $('rcard').classList.add('show');
+
+  $('rname').textContent = bbox ? 'Awaiting Backend…' : 'No WBC Detected';
+  $('rname').className = 'rname c-slate';
+  $('cval').textContent = '—';
+  $('rdesc').textContent = bbox
+    ? '"Detection box placed from client-side pixel masking. Querying the AI backend for an actual classification — no result yet."'
+    : '"No nucleus region found above the current Detection Threshold. Try lowering the slider or use a clearer image."';
+
+  const ms=[
+    {l:'Nucleus Area (px)',v:area,max:20000,d:area},
+    {l:'Lobe Count',v:lc,max:6,d:lc},
+  ];
+  $('feats').innerHTML=ms.map(m=>`<div class="mrow"><div class="mhdr"><span class="mlbl">${m.l}</span><span class="mval">${m.d}</span></div><div class="mbar"><div class="mfill" style="width:${Math.min(100,(m.v/m.max)*100)}%"></div></div></div>`).join('');
+  document.querySelectorAll('.leg-item').forEach(el=>{el.style.background='';el.className='leg-item';});
+}
+
+// Called when the AI backend can't be reached or errors out. This is the
+// explicit, honest failure state requested — no silent fallback to a
+// heuristic guess, just a clear statement that no classification happened.
+function showBackendUnavailable(reason){
+  $('s4').classList.remove('on');
+  $('s4').classList.add('err');
+  $('s4-sub').textContent = 'Backend unreachable';
+
+  $('rname').textContent = 'Backend Not Connected';
+  $('rname').className = 'rname c-red';
+  $('cval').textContent = '—';
+  $('rdesc').textContent = '"Could not reach the AI backend at ' + AI_BACKEND_URL +
+    '. No classification was performed. Start the trained model server (uvicorn api.app:app) ' +
+    'and run analysis again." (' + reason + ')';
+}
+
+/* ── RUN FULL ANALYSIS ── */
+$('run-btn').onclick = () => {
+  if (!curImg || busy) return;
+  busy=true;
+  $('run-btn').disabled=true;
+  $('run-btn').innerHTML='<span class="spin">⟳</span>&nbsp;PROCESSING...';
+  [1,2,3,4].forEach(i=>$('s'+i).classList.remove('on'));
+  $('s4').classList.remove('err');
+  $('s4-sub').textContent = 'Awaiting model prediction';
+  $('rcard').classList.remove('show');
+
+  const setStep=n=>{for(let i=0;i<n;i++)$('s'+(i+1)).classList.add('on');};
+  setTimeout(()=>setStep(1),100);
+  setTimeout(()=>setStep(2),600);
+
+  const img=new Image();
+  img.onload=()=>{
+    const hc=$('hc'); hc.width=W; hc.height=H;
+    const ctx=hc.getContext('2d',{willReadFrequently:true});
+    ctx.drawImage(img,0,0,W,H);
+    const id=ctx.getImageData(0,0,W,H),d=id.data;
+
+    const rc=$('raw-c'); rc.style.display='block'; rc.width=W; rc.height=H;
+    rc.getContext('2d').drawImage(img,0,0,W,H);
+
+    const thresh=parseInt(threshInput.value);
+    const pp=[]; let tR=0,tB=0,ud=0;
+    for(let i=0;i<d.length;i+=4){
+      const r=d[i],g=d[i+1],b=d[i+2];
+      const blueVal=b-(r+g)/2;
+      if(blueVal>thresh&&(r+g+b)/3<180){
+        const idx=i/4;
+        pp.push({x:idx%W,y:(idx/W)|0,i});
+        tR+=r;tB+=b;if(r+g+b<240)ud++;
+      }
+    }
+    let fp=[];
+    if(pp.length){
+      const ax=pp.reduce((s,p)=>s+p.x,0)/pp.length;
+      const ay=pp.reduce((s,p)=>s+p.y,0)/pp.length;
+      fp=pp.filter(p=>Math.hypot(p.x-ax,p.y-ay)<75);
+    }
+    let x0=W,x1=0,y0=H,y1=0;
+    fp.forEach(p=>{
+      if(p.x<x0)x0=p.x;if(p.x>x1)x1=p.x;
+      if(p.y<y0)y0=p.y;if(p.y>y1)y1=p.y;
+    });
+
+    setTimeout(()=>setStep(3),800);
+
+    const area=fp.length;
+    const ps=new Set(fp.map(p=>p.y*W+p.x));
+
+    let bc=0;
+    for(const p of fp){
+      if([(p.y-1)*W+p.x,(p.y+1)*W+p.x,p.y*W+(p.x-1),p.y*W+(p.x+1)].some(n=>!ps.has(n)))bc++;
+    }
+    const circ=bc>0?(4*Math.PI*area)/(bc*bc):0;
+
+    let eS=ps; for(let i=0;i<3;i++)eS=erode(eS,W);
+    const lc=eS.size>50?blobs(eS,W):1;
+
+    // No classification decision happens here anymore — area/circ/lc are
+    // just measurements for display. bbox is ONLY used to place the
+    // detection box and to crop the region sent to the AI backend.
+    const bbox=area?{x0,x1,y0,y1}:null;
+
+    // Crop for the AI backend now, while img/bbox are in scope — but the
+    // actual request fires AFTER the box-drawing animation below, not
+    // here, so there's no race between this and the box being placed.
+    const aiCrop = cropForAI(img, bbox);
+
+    // Render all canvases
+    liveRender(thresh);
+
+    setTimeout(()=>{
+      setStep(3);
+      showDetectionStats({area,circ:circ.toFixed(2),lc,bbox});
+      drawBB(rc, '', bbox, W, H);
+      drawBB($('pvc'), '', bbox, $('pvc').width, $('pvc').height);
+      $('prev-lbl').textContent='Detection';
+      busy=false;
+      $('run-btn').disabled=false;
+      $('run-btn').innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> RUN ANALYSIS';
+
+      // Box is now placed and stable — let the AI backend's response (or
+      // its explicit failure message) be the only thing that ever labels
+      // it or fills in the Classification Result card.
+      runAIPrediction(aiCrop, {img, bbox, rc, pvc: $('pvc')});
+    },1100);
+  };
+  img.src=curImg;
+};
+</script>
+</body>
+</html>
