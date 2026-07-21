@@ -1,4 +1,10 @@
-[README.md](https://github.com/user-attachments/files/30016882/README.md)
+> ⚠️ **Licensing Notice**
+>
+> The source code contained in this repository is proprietary and is provided
+> for viewing and portfolio demonstration purposes only.
+> No permission is granted to copy, modify, redistribute, or create derivative
+> works without explicit written permission.
+
 # 🧬 NucleiMapper
 
 **NucleiMapper is a PyTorch-based white blood cell morphology classifier trained on real peripheral blood smear images, combining CNN inference with nucleus and granule feature visualization.**
@@ -441,11 +447,27 @@ If you use RV-PBS in your own research, please follow the citation guidance prov
 
 ## 📜 License
 
-NucleiMapper source code is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
+Copyright © 2026 Chitrarup Guha.
+All Rights Reserved.
 
-The RV-PBS dataset is a separate work and remains subject to its own applicable terms and attribution requirements.
+NucleiMapper is proprietary software.
 
-\---
+No permission is granted to use, copy, modify, merge, publish, distribute,
+sublicense, sell, create derivative works from, or commercially exploit any
+part of this repository without prior written permission from the copyright holder.
+
+Viewing the source code on GitHub does **not** grant permission to reuse it.
+
+The complete legal terms are provided in the accompanying `LICENSE` file.
+
+### Dataset Notice
+
+NucleiMapper does **not** claim ownership of the RV-PBS dataset.
+
+The RV-PBS dataset remains the intellectual property of its original authors and
+must be obtained separately from its official source under its own licensing terms.
+
+This repository intentionally does **not** redistribute the dataset.
 
 ## 👨‍💻 Author
 
