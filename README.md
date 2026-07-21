@@ -1,9 +1,11 @@
-> ⚠️ **Licensing Notice**
+> ⚠️ **Proprietary Software Licensing Notice**
 >
-> The source code contained in this repository is proprietary and is provided
-> for viewing and portfolio demonstration purposes only.
-> No permission is granted to copy, modify, redistribute, or create derivative
-> works without explicit written permission.
+> NucleiMapper is proprietary software. This repository is publicly accessible solely for portfolio, educational, and research demonstration purposes.
+>
+> The source code is provided for viewing only. No permission is granted to use, copy, modify, merge, publish, distribute, sublicense, create derivative works from, or commercially exploit any part of this repository without prior written permission from the copyright holder.
+>
+> Viewing this repository on GitHub does **not** grant any license or other rights to reuse the source code. Please refer to the accompanying `LICENSE` file for the complete legal terms and conditions.
+
 
 # 🧬 NucleiMapper
 
