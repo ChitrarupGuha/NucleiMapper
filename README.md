@@ -458,3 +458,13 @@ Built as a computer vision and medical morphology exploration project combining 
 **NucleiMapper** 🔬🧬  
 *Mapping morphology. Measuring model limits.*
 
+
+
+## License
+
+This project is proprietary software.
+
+The source code is publicly visible for demonstration and portfolio purposes only.
+
+No permission is granted to use, copy, modify, distribute,
+or create derivative works without explicit written permission.
