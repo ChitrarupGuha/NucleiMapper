@@ -1,12 +1,79 @@
+# NucleiMapper Proprietary License
+
 Copyright © 2026 Chitrarup Guha.
 All Rights Reserved.
 
-This repository and all associated source code, documentation,
-designs, assets, models, and datasets are proprietary and confidential.
+## Ownership
 
-No permission is granted to use, copy, modify, merge, publish,
-distribute, sublicense, sell, reverse engineer, or create derivative
-works from any part of this repository without prior written permission
-from the copyright holder.
+NucleiMapper, including its original source code, documentation,
+software architecture, project structure, trained model weights
+(unless otherwise stated), graphical assets, and other original
+materials contained within this repository are the intellectual
+property of Chitrarup Guha.
 
-Unauthorized use may result in legal action.
+## License
+
+This repository is publicly accessible on GitHub solely for
+portfolio demonstration, educational reference, research
+visibility, and technical evaluation.
+
+No permission is granted to use, copy, modify, merge,
+redistribute, sublicense, sell, commercially exploit,
+or create derivative works from any original material
+contained in this repository without prior written
+permission from the copyright holder.
+
+Public visibility of the source code does not constitute
+permission to reuse it.
+
+## Dataset Notice
+
+NucleiMapper uses the RV-PBS
+(Ramakrishna Vivekananda Peripheral Blood Smear)
+dataset for training.
+
+The RV-PBS dataset is NOT included or redistributed
+within this repository.
+
+Users must obtain the dataset from its original source
+and comply with its respective license and terms of use.
+
+The provided `crop_dataset.py` utility reads the original
+CVAT annotations and generates classification-ready
+white blood cell crops while preserving the natural
+peripheral blood smear background.
+
+Natural smear backgrounds are intentionally preserved
+because they better represent real-world microscopy
+images than artificially alpha-masked or black-background
+cutouts.
+
+No ownership is claimed over the RV-PBS dataset.
+
+## Third-Party Components
+
+This project incorporates third-party libraries,
+frameworks, pretrained models, and software that remain
+the property of their respective authors and are governed
+by their own licenses.
+
+Nothing in this license supersedes those licenses.
+
+## Disclaimer
+
+This software is provided "AS IS", without warranty of
+any kind, express or implied, including but not limited
+to merchantability, fitness for a particular purpose,
+and non-infringement.
+
+The copyright holder shall not be liable for any direct,
+indirect, incidental, special, exemplary, or consequential
+damages arising from the use of this software.
+
+## Contact
+
+For licensing inquiries, commercial licensing,
+collaboration, or permission requests, please contact
+the repository owner through GitHub.
+
+Unauthorized use, reproduction, or distribution may result in legal action.
